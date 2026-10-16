@@ -4,19 +4,14 @@ import json
 import os
 
 
-CHUNK_SIZE = 10
+CHUNK_SIZE = 16
 TILE_SIZE = 25
 
 CAN_SEE_BLOCKS = 12
 SCREEN_SIZE = CAN_SEE_BLOCKS * TILE_SIZE * 2
 
-CHUNK_SIZE = 10
-CAN_SEE_BLOCKS = 12
-
 MAX_OPTIMIZATION = False
 
-CHUNK_SIZE = 10
-TILE_SIZE = 25
 CAN_SEE_BLOCKS = 12
 SCREEN_SIZE = CAN_SEE_BLOCKS * TILE_SIZE * 2
 
@@ -108,13 +103,14 @@ class Chunk:
         for exit_y in self.exits_right:
             self.matrix[self.size - 1][exit_y] = 0
 
-    def load_from_structure(self, structure_name):
-        self.matrix = self.structures_json[structure_name]
-        self.exits_down = {x for x in range(self.size) if self.matrix[x][self.size - 1] == 0}
-        self.exits_up = {x for x in range(self.size) if self.matrix[x][0] == 0}
-        self.exits_left = {y for y in range(self.size) if self.matrix[0][y] == 0}
-        self.exits_right = {y for y in range(self.size) if self.matrix[self.size - 1][y] == 0}
-
+    def add_structure(self, structure_name):
+        size_y = len(self.matrix)
+        size_x = len(self.matrix[0])
+        x_offset = random.randint(0, self.size - size_x)
+        y_offset = random.randint(0, self.size - size_y)
+        for y in range(size_y):
+            for x in range(size_x):
+                self.matrix[y + y_offset][x + x_offset] = self.structures_json[structure_name][y][x]
 
 class InfiniteMaze:
     def __init__(self, chunk_size, structure_spawn_chance=0.02):
@@ -158,12 +154,12 @@ class InfiniteMaze:
         self.chunks[(0, 1)] = self.chunks[(1, 1)]
         self.chunks[(1, 0)] = Chunk(self.chunk_size, exits_left=self.chunks[(0, 0)].exits_right.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(1, 0)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(1, 0)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(1, 0)].generate_from_exits()
         self.chunks[(1, -1)] = Chunk(self.chunk_size, exits_down=self.chunks[(1, 0)].exits_up.copy(), exits_left=self.chunks[(0, -1)].exits_right.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(1, -1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(1, -1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(1, -1)].generate_from_exits()
         self.chunks[(1, 1)] = Chunk(self.chunk_size, exits_up=self.chunks[(1, 0)].exits_down.copy(), exits_left=self.chunks[(0, 1)].exits_right.copy(), structures_json=structures_json)
@@ -178,17 +174,17 @@ class InfiniteMaze:
         self.chunks[(0, 1)] = self.chunks[(-1, 1)]
         self.chunks[(-1, 0)] = Chunk(self.chunk_size, exits_right=self.chunks[(0, 0)].exits_left.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(-1, 0)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(-1, 0)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(-1, 0)].generate_from_exits()
         self.chunks[(-1, -1)] = Chunk(self.chunk_size, exits_down=self.chunks[(-1, 0)].exits_up.copy(), exits_right=self.chunks[(0, -1)].exits_left.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(-1, -1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(-1, -1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(-1, -1)].generate_from_exits()
         self.chunks[(-1, 1)] = Chunk(self.chunk_size, exits_up=self.chunks[(-1, 0)].exits_down.copy(), exits_right=self.chunks[(0, 1)].exits_left.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(-1, 1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(-1, 1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(-1, 1)].generate_from_exits()
 
@@ -201,17 +197,17 @@ class InfiniteMaze:
         self.chunks[(1, 0)] = self.chunks[(1, 1)]
         self.chunks[(0, 1)] = Chunk(self.chunk_size, exits_down=self.chunks[(0, 0)].exits_up.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(0, 1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(0, 1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(0, 1)].generate_from_exits()
         self.chunks[(-1, 1)] = Chunk(self.chunk_size, exits_down=self.chunks[(-1, 0)].exits_up.copy(), exits_right=self.chunks[(0, 1)].exits_left.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(-1, 1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(-1, 1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(-1, 1)].generate_from_exits()
         self.chunks[(1, 1)] = Chunk(self.chunk_size, exits_down=self.chunks[(1, 0)].exits_up.copy(), exits_left=self.chunks[(0, 1)].exits_right.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(1, 1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(1, 1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(1, 1)].generate_from_exits()
 
@@ -224,17 +220,17 @@ class InfiniteMaze:
         self.chunks[(1, 0)] = self.chunks[(1, -1)]
         self.chunks[(0, -1)] = Chunk(self.chunk_size, exits_up=self.chunks[(0, 0)].exits_down.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(0, -1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(0, -1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(0, -1)].generate_from_exits()
         self.chunks[(-1, -1)] = Chunk(self.chunk_size, exits_up=self.chunks[(-1, 0)].exits_down.copy(), exits_right=self.chunks[(0, -1)].exits_left.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(-1, -1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(-1, -1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(-1, -1)].generate_from_exits()
         self.chunks[(1, -1)] = Chunk(self.chunk_size, exits_up=self.chunks[(1, 0)].exits_down.copy(), exits_left=self.chunks[(0, -1)].exits_right.copy(), structures_json=structures_json)
         if random.random() < self.structure_spawn_chance:
-            self.chunks[(1, -1)].load_from_structure(random.choice(list(structures_json.keys())))
+            self.chunks[(1, -1)].add_structure(random.choice(list(structures_json.keys())))
         else:
             self.chunks[(1, -1)].generate_from_exits()
 
@@ -318,6 +314,10 @@ while True:
                 moved = True
                 camera_offset_y = TILE_SIZE
                 maze.up_shift()
+
+    if MAX_OPTIMIZATION:
+        camera_offset_x = 0
+        camera_offset_y = 0
     if moved or not MAX_OPTIMIZATION:
         screen.fill((255, 255, 255))
 
