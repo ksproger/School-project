@@ -104,8 +104,13 @@ class Chunk:
     def add_structure(self, structure_name):
         size_y = len(self.structures_json[structure_name])
         size_x = len(self.structures_json[structure_name][0])
+        if size_x > self.size or size_y > self.size:
+            raise ValueError(
+                f"Структура '{structure_name}' {size_x}×{size_y} больше чанка {self.size}×{self.size}"
+            )
         x_offset = random.randint(0, self.size - size_x)
         y_offset = random.randint(0, self.size - size_y)
+
         for y in range(size_y):
             for x in range(size_x):
                 self.matrix[y + y_offset][x + x_offset] = self.structures_json[structure_name][y][x]
