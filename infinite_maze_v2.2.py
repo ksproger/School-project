@@ -1,4 +1,17 @@
-import pygame
+try:
+    import pygame
+except ImportError:
+    import os
+    print("Warning: no pygame found. trying to install with pip.")
+    os.system("pip install pygame")
+    try:
+        import pygame
+    except ImportError:
+        import time
+        print("ERROR[0]: import pygame failed after pip install")
+        print("Не удалось установить pygame. Пожалуйста, установите его вручную или проверьте наличие виртуального окружения.")
+        time.sleep(5)
+        exit(1)
 import random
 import json
 import os
@@ -14,13 +27,21 @@ MAX_OPTIMIZATION = False
 
 
 if CHUNK_SIZE <= 0:
-    raise ValueError("CHUNK_SIZE должен быть > 0")
+    print("ERROR[1]: CHUNK_SIZE is not valid")
+    print("CHUNK_SIZE должен быть > 0")
+    exit(1)
 if CHUNK_SIZE % 2 != 0:
-    raise ValueError("CHUNK_SIZE должен быть чётным")
+    print("ERROR[1]: CHUNK_SIZE is not valid")
+    print("CHUNK_SIZE должен быть четным")
+    exit(1)
 if CAN_SEE_BLOCKS+1 >= CHUNK_SIZE * 2:
-    raise ValueError("CAN_SEE_BLOCKS+1 должен быть < CHUNK_SIZE * 2")
+    print("ERROR[1]: CAN_SEE_BLOCKS+1 is not valid")
+    print("CAN_SEE_BLOCKS+1 должен быть < CHUNK_SIZE * 2")
+    exit(1)
 if TILE_SIZE <= 0:
-    raise ValueError("TILE_SIZE должен быть > 0")
+    print("ERROR[1]: TILE_SIZE is not valid")
+    print("TILE_SIZE должен быть > 0")
+    exit(1)
 STRUCTURES_DIR = os.path.join(os.path.dirname(__file__), 'structures.json')
 
 with open(STRUCTURES_DIR, 'r') as f:
@@ -105,9 +126,9 @@ class Chunk:
         size_y = len(self.structures_json[structure_name])
         size_x = len(self.structures_json[structure_name][0])
         if size_x > self.size or size_y > self.size:
-            raise ValueError(
-                f"Структура '{structure_name}' {size_x}×{size_y} больше чанка {self.size}×{self.size}"
-            )
+            print("ERROR[2]: strucrure is not valid")
+            print(f"Структура {structure_name} не может быть добавлена в чанки, так как она больше размера чанка({self.size}x{self.size})")
+            return
         x_offset = random.randint(0, self.size - size_x)
         y_offset = random.randint(0, self.size - size_y)
 
