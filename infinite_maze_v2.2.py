@@ -1,17 +1,21 @@
+import sys
+import subprocess
+import time
+
 try:
     import pygame
 except ImportError:
-    import os
-    print("Warning: no pygame found. trying to install with pip.")
-    os.system("pip install pygame-ce")
+    print("Warning: Pygame not found. Trying to install pygame-ce via pip...")
     try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pygame-ce"])
         import pygame
-    except ImportError:
-        import time
+        print("Success: pygame-ce installed! Starting the game...")
+    except Exception:
         print("ERROR[0]: import pygame failed after pip install")
-        print("Не удалось установить pygame. Пожалуйста, установите его вручную или проверьте наличие виртуального окружения.")
+        print("Не удалось автоматически установить pygame-ce. Пожалуйста, выполните 'pip install pygame-ce' вручную.")
         time.sleep(5)
-        exit(1)
+        sys.exit(1)
+
 import random
 import json
 import os
