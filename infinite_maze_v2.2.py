@@ -3,7 +3,7 @@ try:
 except ImportError:
     import os
     print("Warning: no pygame found. trying to install with pip.")
-    os.system("pip install pygame")
+    os.system("pip install pygame-ce")
     try:
         import pygame
     except ImportError:
